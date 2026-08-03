@@ -5,6 +5,7 @@
 
 #include "cipher.h"
 #include "encrypt.h"
+#include "base64.h"
 
 void encrypt_text(void)
 {
@@ -13,14 +14,14 @@ void encrypt_text(void)
 
     printf("Enter text: ");
     fgets(text, sizeof(text), stdin);
-
     text[strcspn(text, "\n")] = '\0';
 
     printf("Enter password: ");
     fgets(password, sizeof(password), stdin);
-
     password[strcspn(password, "\n")] = '\0';
 
+    /* Temporary key generation.
+       Later this will be replaced with SHA-256. */
     uint8_t key[32] = {0};
 
     size_t password_len = strlen(password);
@@ -30,6 +31,8 @@ void encrypt_text(void)
 
     memcpy(key, password, password_len);
 
+    /* Temporary IV.
+       Later this will be randomly generated. */
     uint8_t iv[16] = {0};
 
     uint8_t *encrypted = NULL;
@@ -47,9 +50,18 @@ void encrypt_text(void)
         return;
     }
 
-    printf("\nEncrypted Data:\n");
-    print_hex(encrypted, encrypted_len);
+    char *encoded = base64_encode(encrypted, encrypted_len);
 
+    if (encoded == NULL)
+    {
+        printf("Base64 encoding failed.\n");
+        free(encrypted);
+        return;
+    }
+
+    printf("\nEncrypted Text:\n%s\n", encoded);
+
+    free(encoded);
     free(encrypted);
 }
 
