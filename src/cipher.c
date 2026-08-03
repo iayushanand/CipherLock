@@ -5,59 +5,17 @@
 #include "aes.h"
 #include "cipher.h"
 
+// instead of printing hex I will instead do base64 bcs thats how most encryption tool works.. let me find a good base64 lib
+char *base64_encode(
+    const uint8_t *data,
+    size_t input_length
+);
 
-void print_hex(const uint8_t *data, size_t len)
-{
-    for (size_t i = 0; i < len; i++)
-        printf("%02X ", data[i]);
-
-    printf("\n");
-}
-
-
-
-int hex_to_bytes(
-    const char *hex,
+int base64_decode(
+    const char *input,
     uint8_t **output,
-    size_t *output_len)
-{
-    size_t hex_len = strlen(hex);
-
-    *output = malloc(hex_len / 2);
-
-    if (*output == NULL)
-        return -1;
-
-    size_t j = 0;
-
-    for (size_t i = 0; i < hex_len;)
-    {
-        while (hex[i] == ' ')
-            i++;
-
-        if (hex[i] == '\0')
-            break;
-
-        unsigned int value;
-
-        if (sscanf(&hex[i], "%2x", &value) != 1)
-        {
-            free(*output);
-            return -1;
-        }
-
-        (*output)[j++] = (uint8_t)value;
-
-        i += 2;
-
-        while (hex[i] == ' ')
-            i++;
-    }
-
-    *output_len = j;
-
-    return 0;
-}
+    size_t *output_length
+);
 
 
 // mind u its 3 am and I have no idea what I am writing or what I am doign wit my life...
