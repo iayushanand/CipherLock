@@ -14,6 +14,52 @@ void print_hex(const uint8_t *data, size_t len)
     printf("\n");
 }
 
+
+
+int hex_to_bytes(
+    const char *hex,
+    uint8_t **output,
+    size_t *output_len)
+{
+    size_t hex_len = strlen(hex);
+
+    *output = malloc(hex_len / 2);
+
+    if (*output == NULL)
+        return -1;
+
+    size_t j = 0;
+
+    for (size_t i = 0; i < hex_len;)
+    {
+        while (hex[i] == ' ')
+            i++;
+
+        if (hex[i] == '\0')
+            break;
+
+        unsigned int value;
+
+        if (sscanf(&hex[i], "%2x", &value) != 1)
+        {
+            free(*output);
+            return -1;
+        }
+
+        (*output)[j++] = (uint8_t)value;
+
+        i += 2;
+
+        while (hex[i] == ' ')
+            i++;
+    }
+
+    *output_len = j;
+
+    return 0;
+}
+
+
 // mind u its 3 am and I have no idea what I am writing or what I am doign wit my life...
 // if this code fails to work I will cry myself to sleep and think about life choices...
 // urs truly ~ ayu
@@ -119,5 +165,10 @@ int decrypt_buffer(
 
     *output_len = pkcs7_unpad(*output, input_len);
 
+    (*output)[*output_len] = '\0';
+
     return 0;
 }
+
+
+

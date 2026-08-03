@@ -9,9 +9,16 @@ void print_help(void)
     printf("CipherLock\n\n");
     printf("Usage:\n");
     printf("  cipherlock encrypt\n");
+    printf("      Encrypt text entered from the terminal.\n\n");
+
     printf("  cipherlock decrypt\n");
+    printf("      Decrypt text entered from the terminal.\n\n");
+
     printf("  cipherlock fencrypt <file>\n");
+    printf("      Encrypt a file.\n\n");
+
     printf("  cipherlock fdecrypt <file>\n");
+    printf("      Decrypt a file.\n");
 }
 
 int main(int argc, char *argv[])
@@ -34,7 +41,7 @@ int main(int argc, char *argv[])
     {
         if (argc < 3)
         {
-            printf("Missing filename.\n");
+            fprintf(stderr, "Error: Missing filename.\n");
             return 1;
         }
 
@@ -44,7 +51,7 @@ int main(int argc, char *argv[])
     {
         if (argc < 3)
         {
-            printf("Missing filename.\n");
+            fprintf(stderr, "Error: Missing filename.\n");
             return 1;
         }
 
@@ -52,7 +59,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Unknown command.\n\n");
+        fprintf(stderr, "Unknown command: %s\n\n", argv[1]);
         print_help();
         return 1;
     }
