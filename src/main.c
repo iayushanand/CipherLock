@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "encrypt.h"
+#include "decrypt.h"
+
 void print_help(void)
 {
     printf("CipherLock\n\n");
@@ -21,11 +24,11 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[1], "encrypt") == 0)
     {
-        printf("Encrypt text selected.\n");
+        encrypt_text();
     }
     else if (strcmp(argv[1], "decrypt") == 0)
     {
-        printf("Decrypt text selected.\n");
+        decrypt_text();
     }
     else if (strcmp(argv[1], "fencrypt") == 0)
     {
@@ -35,7 +38,7 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        printf("Encrypt file: %s\n", argv[2]);
+        encrypt_file(argv[2]);
     }
     else if (strcmp(argv[1], "fdecrypt") == 0)
     {
@@ -45,12 +48,13 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        printf("Decrypt file: %s\n", argv[2]);
+        decrypt_file(argv[2]);
     }
     else
     {
         printf("Unknown command.\n\n");
         print_help();
+        return 1;
     }
 
     return 0;

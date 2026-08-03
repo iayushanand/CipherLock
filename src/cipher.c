@@ -70,6 +70,22 @@ int encrypt_buffer(
     uint8_t **output,
     size_t *output_len)
 {
+    *output_len = pkcs7_pad(input, input_len, output);
+
+    if (*output == NULL || *output_len == 0)
+    {
+        return -1;
+    }
+
+    uint8_t iv_copy[16];
+    memcpy(iv_copy, iv, 16);
+
+    struct AES_ctx ctx;
+
+    AES_init_ctx_iv(&ctx, key, iv_copy);
+
+    AES_CBC_encrypt_buffer(&ctx, *output, *output_len);
+
     return 0;
 }
 
@@ -83,5 +99,25 @@ int decrypt_buffer(
     uint8_t **output,
     size_t *output_len)
 {
+    *output = malloc(input_len + 1);
+
+    if (*output == NULL)
+    {
+        return -1;
+    }
+
+    memcpy(*output, input, input_len);
+
+    uint8_t iv_copy[16];
+    memcpy(iv_copy, iv, 16);
+
+    struct AES_ctx ctx;
+
+    AES_init_ctx_iv(&ctx, key, iv_copy);
+
+    AES_CBC_decrypt_buffer(&ctx, *output, input_len);
+
+    *output_len = pkcs7_unpad(*output, input_len);
+
     return 0;
 }
