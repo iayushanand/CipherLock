@@ -6,6 +6,8 @@
 #include "cipher.h"
 #include "encrypt.h"
 #include "base64.h"
+#include "keygen.h"
+#include "random.h"
 
 void encrypt_text(void)
 {
@@ -23,9 +25,13 @@ void encrypt_text(void)
     uint8_t key[32];
     derive_key(password, key);
 
-    /* Temporary IV.
-       Later this will be randomly generated. */
-    uint8_t iv[16] = {0};
+    uint8_t iv[16];
+
+    if (random_bytes(iv, sizeof(iv)) != 0)
+    {
+        printf("Failed to generate IV.\n");
+        return;
+    }
 
     uint8_t *encrypted = NULL;
     size_t encrypted_len = 0;
@@ -42,11 +48,26 @@ void encrypt_text(void)
         return;
     }
 
-    char *encoded = base64_encode(encrypted, encrypted_len);
+    size_t final_len = 16 + encrypted_len;
+
+    uint8_t *final = malloc(final_len);
+
+    if (final == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        free(encrypted);
+        return;
+    }
+
+    memcpy(final, iv, 16);
+    memcpy(final + 16, encrypted, encrypted_len);
+
+    char *encoded = base64_encode(final, final_len);
 
     if (encoded == NULL)
     {
         printf("Base64 encoding failed.\n");
+        free(final);
         free(encrypted);
         return;
     }
@@ -54,6 +75,7 @@ void encrypt_text(void)
     printf("\nEncrypted Text:\n%s\n", encoded);
 
     free(encoded);
+    free(final);
     free(encrypted);
 }
 

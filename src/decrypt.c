@@ -6,6 +6,7 @@
 #include "cipher.h"
 #include "decrypt.h"
 #include "base64.h"
+#include "keygen.h"
 
 void decrypt_text(void)
 {
@@ -20,23 +21,32 @@ void decrypt_text(void)
     fgets(password, sizeof(password), stdin);
     password[strcspn(password, "\n")] = '\0';
 
-
     uint8_t key[32];
     derive_key(password, key);
 
+    uint8_t *decoded = NULL;
+    size_t decoded_len = 0;
 
-    uint8_t iv[16] = {0};
+    decoded = base64_decode(input, &decoded_len);
 
-    uint8_t *ciphertext = NULL;
-    size_t ciphertext_len = 0;
-
-    ciphertext = base64_decode(input, &ciphertext_len);
-
-    if (ciphertext == NULL)
+    if (decoded == NULL)
     {
         printf("Invalid Base64 input.\n");
         return;
     }
+
+    if (decoded_len < 16)
+    {
+        printf("Invalid encrypted data.\n");
+        free(decoded);
+        return;
+    }
+
+    uint8_t iv[16];
+    memcpy(iv, decoded, 16);
+
+    uint8_t *ciphertext = decoded + 16;
+    size_t ciphertext_len = decoded_len - 16;
 
     uint8_t *plaintext = NULL;
     size_t plaintext_len = 0;
@@ -50,15 +60,14 @@ void decrypt_text(void)
             &plaintext_len) != 0)
     {
         printf("Decryption failed.\n");
-
-        free(ciphertext);
+        free(decoded);
         return;
     }
 
     printf("\nDecrypted Text:\n%s\n", plaintext);
 
-    free(ciphertext);
     free(plaintext);
+    free(decoded);
 }
 
 void decrypt_file(const char *filename)

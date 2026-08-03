@@ -7,10 +7,12 @@ int random_bytes(
     uint8_t *buffer,
     size_t length)
 {
-    return BCryptGenRandom(
+    NTSTATUS status = BCryptGenRandom(
         NULL,
         buffer,
         (ULONG)length,
         BCRYPT_USE_SYSTEM_PREFERRED_RNG
-    ) == STATUS_SUCCESS ? 0 : -1;
+    );
+
+    return BCRYPT_SUCCESS(status) ? 0 : -1;
 }
