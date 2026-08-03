@@ -125,19 +125,18 @@ void decrypt_file(const char *filename)
     strncpy(output, filename, sizeof(output));
     output[sizeof(output) - 1] = '\0';
 
-    size_t len = strlen(output);
+    char *ext = strrchr(output, '.');
 
-    if (len >= 5 && strcmp(output + len - 5, ".clck") == 0)
+    if (ext != NULL && strcmp(ext, ".clck") == 0)
     {
-        output[len - 5] = '\0';
+        *ext = '\0';
     }
     else
     {
-        strncat(
-            output,
-            ".decrypted",
-            sizeof(output) - strlen(output) - 1
-        );
+        printf("Not a CipherLock file.\n");
+        free(buffer);
+        free(plaintext);
+        return;
     }
 
     if (write_file(output, plaintext, plaintext_len) != 0)
